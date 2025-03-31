@@ -7,7 +7,7 @@ topology:
   nodes:
     gobgp1:
       kind: linux
-      image: ubuntu:watal
+      image: ubuntu:k1yoto
       binds:
         - ../gobgp/cmd/gobgpd/gobgpd:/bin/gobgpd
         - ../gobgp/cmd/gobgp/gobgp:/bin/gobgp
@@ -15,7 +15,7 @@ topology:
       mgmt-ipv4: 172.100.100.101
     gobgp2:
       kind: linux
-      image: ubuntu:watal
+      image: ubuntu:k1yoto
       binds:
         - ../gobgp/cmd/gobgpd/gobgpd:/bin/gobgpd
         - ../gobgp/cmd/gobgp/gobgp:/bin/gobgp
