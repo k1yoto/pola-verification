@@ -5,14 +5,6 @@ mgmt:
   ipv6-subnet: 2001:172:100:100::/80
 topology:
   nodes:
-    gobgp1:
-      kind: linux
-      image: ubuntu:k1yoto
-      binds:
-        - ../gobgp/cmd/gobgpd/gobgpd:/bin/gobgpd
-        - ../gobgp/cmd/gobgp/gobgp:/bin/gobgp
-        - startup/gobgp1/gobgpd.yml:/config/gobgpd.yml
-      mgmt-ipv4: 172.100.100.101
     gobgp2:
       kind: linux
       image: ubuntu:k1yoto
@@ -25,7 +17,7 @@ topology:
         - startup/gobgp2/polad.yaml:/config/polad.yaml
       mgmt-ipv4: 172.100.100.102
       exec:
-        - ip -4 addr add 172.100.200.102/24 dev eth2
+        - ip -4 addr add 172.100.200.102/24 dev eth1
     r1:
       kind: cisco_xrv9k
       image: vrnetlab/cisco_xrv9k:7.11.1
@@ -43,8 +35,7 @@ topology:
       startup-config: startup/xrv9k/r3.txt
 
   links:
-    - endpoints: ["gobgp1:eth1", "gobgp2:eth1"]
-    - endpoints: ["gobgp2:eth2", "r1:Gi0/0/0/0"]
+    - endpoints: ["gobgp2:eth1", "r1:Gi0/0/0/0"]
     - endpoints: ["r1:Gi0/0/0/1", "r2:Gi0/0/0/0"]
     - endpoints: ["r1:Gi0/0/0/2", "r3:Gi0/0/0/0"]
     - endpoints: ["r2:Gi0/0/0/1", "r3:Gi0/0/0/1"]
