@@ -1,0 +1,31 @@
+name: bgp-ls-service-segment-gobgp-only
+mgmt:
+  network: custom_mgmt
+  ipv4-subnet: 172.100.100.0/24
+  ipv6-subnet: 2001:172:100:100::/80
+topology:
+  nodes:
+    gobgp1:
+      kind: linux
+      image: ubuntu:watal
+      binds:
+        - ../gobgp/cmd/gobgpd/gobgpd:/bin/gobgpd
+        - ../gobgp/cmd/gobgp/gobgp:/bin/gobgp
+        - startup/gobgp1/gobgpd.yml:/config/gobgpd.yml
+      mgmt-ipv4: 172.100.100.101
+    gobgp2:
+      kind: linux
+      image: ubuntu:watal
+      binds:
+        - ../gobgp/cmd/gobgpd/gobgpd:/bin/gobgpd
+        - ../gobgp/cmd/gobgp/gobgp:/bin/gobgp
+        - ../pola/cmd/pola/pola:/bin/pola
+        - ../pola/cmd/polad/polad:/bin/polad
+        - startup/gobgp2/gobgpd.yml:/config/gobgpd.yml
+        - startup/gobgp2/polad.yaml:/config/polad.yaml
+      mgmt-ipv4: 172.100.100.102
+      exec:
+        - ip -4 addr add 172.100.200.102/24 dev eth1
+
+  links:
+    - endpoints: ["gobgp1:eth1", "gobgp2:eth1"]

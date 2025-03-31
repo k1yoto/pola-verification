@@ -1,0 +1,34 @@
+int lo0
+ ipv6 address fc00:b100:2::1/128
+!
+int g0/0/0/0
+ ipv6 enable
+ no shut
+!
+int g0/0/0/1
+ ipv6 enable
+ no shut
+!
+segment-routing srv6
+ locators
+  locator MY_LOCATOR
+   prefix fc00:b100:2::/64
+!
+router isis 1
+ is-type level-2-only
+ net 49.1.0.0.2.00
+ address-family ipv6 unicast
+  segment-routing srv6
+   locator MY_LOCATOR level 2
+  metric-style wide
+  !
+  int Loopback0
+   address-family ipv6 unicast
+  !
+  int g0/0/0/0
+   point-to-point
+   address-family ipv6 unicast
+  !
+  int g0/0/0/1
+   point-to-point
+   address-family ipv6 unicast
