@@ -1,7 +1,7 @@
 [submodule "pola"]
 	path = pola
 	url = https://github.com/k1yoto/pola.git
-	branch = feature/bgp-ls-service-segment
+	branch = develop
 [submodule "gobgp"]
 	path = gobgp
 	url = https://github.com/watal/gobgp.git
