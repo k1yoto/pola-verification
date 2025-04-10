@@ -1,11 +1,11 @@
-# Pola Interface verification for BGP-LS Service Segment
+# Pola PCE Interface verification for BGP-LS Service Segment
 
 ## Setup
 
 1. Clone the repository with submodules:
 
     ```bash
-    git clone --recurse-submodules https://github.com/k1yoto/pola-verification
+    git clone --recurse-submodules -b feature/bgp-ls-service-segment https://github.com/k1yoto/pola-verification
     ```
 
 2. Build GoBGP:
@@ -17,16 +17,24 @@
     go build .
     ```
 
-3. Build Pola:
+3. Build Pola PCE:
+    Before building Pola PCE, edit go.mod to change it to reference local GoBGP.
+
+    ```go.mod
+    replace github.com/osrg/gobgp/v3 => ../gobgp
+    ```
 
     ```bash
-    cd ../../../pola-verification/pola/cmd/pola
+    cd ../../../pola-verification/pola
+    go mod tidy
+
+    cd ./cmd/pola
     go build .
     cd ../polad
     go build .
     ```
 
-4. Build the Docker image:
+4. Build Docker image:
 
     ```bash
     cd ../../../bgp-ls-service-segment
@@ -35,7 +43,7 @@
 
 ## Verify GoBGP only
 
-1. Deploy the network using [containerlab]:
+1. Deploy the network using containerlab:
 
     ```bash
     sudo clab deploy -t bgp-ls-service-segment-gobgp-pola.clab.yml
@@ -57,7 +65,7 @@
     gobgp global rib -a ls
     ```
 
-4. Set Pola
+4. Set Pola PCE
 
     ```bash
     docker exec -it clab-bgp-ls-service-segment-gobgp-only-gobgp2 bash
@@ -90,7 +98,7 @@
 
 ## Verify GoBGP and IOS-XRv9k (in progress)
 
-1. Deploy the network using [containerlab]:
+1. Deploy the network using containerlab:
     
     ```bash
     sudo clab deploy -t bgp-ls-service-segment-gobgp-pola-xrv9k.clab.yml
@@ -104,81 +112,15 @@
     gobgp global rib -a ls
     ```
 
-3. Set Pola
+3. Set Pola PCE
 
     ```bash
     docker exec -it clab-bgp-ls-service-segment-gobgp-only-gobgp2 bash
     polad -f config/polad.yaml
+    pola ted -p 50052
     ```
 
 ### Show IOS-XRv9k Information
-
-    ```
-    RP/0/RP0/CPU0:r1#show bgp link-state link-state
-    Sat Mar 29 09:27:48.497 UTC
-    BGP router identifier 1.1.1.1, local AS number 65000
-    BGP generic scan interval 60 secs
-    Non-stop routing is enabled
-    BGP table state: Active
-    Table ID: 0x0   RD version: 19
-    BGP table nexthop route policy:
-    BGP main routing table version 19
-    BGP NSR Initial initsync version 19 (Reached)
-    BGP NSR/ISSU Sync-Group versions 0/0
-    BGP scan interval 60 secs
-
-    Status codes: s suppressed, d damped, h history, * valid, > best
-                i - internal, r RIB-failure, S stale, N Nexthop-discard
-    Origin codes: i - IGP, e - EGP, ? - incomplete
-    Prefix codes: E link, V node, T IP reachable route, S SRv6 SID, SP SRTE Policy, u/U unknown
-                I Identifier, N local node, R remote node, L link, P prefix, S SID, C candidate path
-                L1/L2 ISIS level-1/level-2, O OSPF, D direct, ST static/peer-node, SR Segment Routing
-                a area-ID, l link-ID, t topology-ID, s ISO-ID,
-                c confed-ID/ASN, b bgp-identifier, r router-ID, te te-router-ID, sd SID
-                i if-address, n nbr-address, o OSPF Route-type, p IP-prefix
-                d designated router address, po protocol-origin, f flag
-                e endpoint-ip, cl color, as originator-asn oa originator-address
-                di discriminator
-    Network            Next Hop            Metric LocPrf Weight Path
-    *> [V][L2][I0x20][N[c65000][b0.0.0.0][s0000.0000.0001.00]]/328
-                        0.0.0.0                                0 i
-    *> [V][L2][I0x20][N[c65000][b0.0.0.0][s0000.0000.0002.00]]/328
-                        0.0.0.0                                0 i
-    *> [V][L2][I0x20][N[c65000][b0.0.0.0][s0000.0000.0003.00]]/328
-                        0.0.0.0                                0 i
-    *> [E][L2][I0x20][N[c65000][b0.0.0.0][s0000.0000.0001.00]][R[c65000][b0.0.0.0][s0000.0000.0002.00]][L[l9.6][t0x0002]]/712
-                        0.0.0.0                                0 i
-    *> [E][L2][I0x20][N[c65000][b0.0.0.0][s0000.0000.0001.00]][R[c65000][b0.0.0.0][s0000.0000.0003.00]][L[l10.8][t0x0002]]/712
-                        0.0.0.0                                0 i
-    *> [E][L2][I0x20][N[c65000][b0.0.0.0][s0000.0000.0002.00]][R[c65000][b0.0.0.0][s0000.0000.0001.00]][L[l6.9][t0x0002]]/712
-                        0.0.0.0                                0 i
-    *> [E][L2][I0x20][N[c65000][b0.0.0.0][s0000.0000.0002.00]][R[c65000][b0.0.0.0][s0000.0000.0003.00]][L[l7.9][t0x0002]]/712
-                        0.0.0.0                                0 i
-    *> [E][L2][I0x20][N[c65000][b0.0.0.0][s0000.0000.0003.00]][R[c65000][b0.0.0.0][s0000.0000.0001.00]][L[l8.10][t0x0002]]/712
-                        0.0.0.0                                0 i
-    *> [E][L2][I0x20][N[c65000][b0.0.0.0][s0000.0000.0003.00]][R[c65000][b0.0.0.0][s0000.0000.0002.00]][L[l9.7][t0x0002]]/712
-                        0.0.0.0                                0 i
-    *> [T][L2][I0x20][N[c65000][b0.0.0.0][s0000.0000.0001.00]][P[t0x0002][pfc00:b100:1::/64]]/480
-                        0.0.0.0                                0 i
-    *> [T][L2][I0x20][N[c65000][b0.0.0.0][s0000.0000.0001.00]][P[t0x0002][pfc00:b100:1::1/128]]/544
-                        0.0.0.0                                0 i
-    *> [T][L2][I0x20][N[c65000][b0.0.0.0][s0000.0000.0002.00]][P[t0x0002][pfc00:b100:2::/64]]/480
-                        0.0.0.0                                0 i
-    *> [T][L2][I0x20][N[c65000][b0.0.0.0][s0000.0000.0002.00]][P[t0x0002][pfc00:b100:2::1/128]]/544
-                        0.0.0.0                                0 i
-    *> [T][L2][I0x20][N[c65000][b0.0.0.0][s0000.0000.0003.00]][P[t0x0002][pfc00:b100:3::/64]]/480
-                        0.0.0.0                                0 i
-    *> [T][L2][I0x20][N[c65000][b0.0.0.0][s0000.0000.0003.00]][P[t0x0002][pfc00:b100:3::1/128]]/544
-                        0.0.0.0                                0 i
-    *> [S][L2][I0x20][N[c65000][b0.0.0.0][s0000.0000.0001.00]][S[t0x0002][sdfc00:b100:1:0:1::]]/536
-                        0.0.0.0                                0 i
-    *> [S][L2][I0x20][N[c65000][b0.0.0.0][s0000.0000.0002.00]][S[t0x0002][sdfc00:b100:2:0:1::]]/536
-                        0.0.0.0                                0 i
-    *> [S][L2][I0x20][N[c65000][b0.0.0.0][s0000.0000.0003.00]][S[t0x0002][sdfc00:b100:3:0:1::]]/536
-                        0.0.0.0                                0 i
-
-    Processed 18 prefixes, 18 paths
-    ```
 
     ```
     RP/0/RP0/CPU0:r1#show bgp link-state link-state summary
@@ -206,50 +148,56 @@
 
 ### Show GoBGP Information
 
+    ```gobgpd
+    root@gobgp2:/# gobgpd -f config/gobgpd-xrv9k.yml
+    {"level":"info","msg":"gobgpd started","time":"2025-04-10T08:05:22Z"}
+    {"Topic":"Config","level":"info","msg":"Finished reading the config file","time":"2025-04-10T08:05:22Z"}
+    {"Key":"172.100.200.101","Topic":"config","level":"info","msg":"Add Peer","time":"2025-04-10T08:05:22Z"}
+    {"Key":"172.100.200.101","Topic":"Peer","level":"info","msg":"Add a peer configuration","time":"2025-04-10T08:05:22Z"}
+    {"Key":"172.100.200.101","State":"BGP_FSM_OPENCONFIRM","Topic":"Peer","level":"info","msg":"Peer Up","time":"2025-04-10T08:05:24Z"}
+    Invalid IPv6 prefix length: 8
+    Invalid IPv6 prefix length: 8
+    Invalid IPv6 prefix length: 8
     ```
-    root@gobgp2:/# gobgp neighbor
-    Peer               AS  Up/Down State       |#Received  Accepted
-    172.100.200.101 65000 00:02:34 Establ      |       18        18
-    root@gobgp2:/#
-    root@gobgp2:/# gobgp global rib -a ls
-    panic: runtime error: index out of range [1] with length 1
 
-    goroutine 1 [running]:
-    github.com/osrg/gobgp/v3/pkg/packet/bgp.(*LsTLVIPReachability).ToIPNet(0xc0002d10e0, 0x1)
-        /home/nakata/dev/pola-verification/gobgp/pkg/packet/bgp/bgp.go:7494 +0x225
-    github.com/osrg/gobgp/v3/pkg/packet/bgp.(*LsPrefixDescriptor).ParseTLVs(0xc000225688, {0xc0002d1100?, 0x20?, 0x148fa80?}, 0x1)
-        /home/nakata/dev/pola-verification/gobgp/pkg/packet/bgp/bgp.go:5548 +0x93
-    github.com/osrg/gobgp/v3/pkg/packet/bgp.(*LsPrefixV6NLRI).String(0xc0002d3300)
-        /home/nakata/dev/pola-verification/gobgp/pkg/packet/bgp/bgp.go:5740 +0xaa
-    github.com/osrg/gobgp/v3/pkg/packet/bgp.(*LsAddrPrefix).String(0xc000154ae0?)
-        /home/nakata/dev/pola-verification/gobgp/pkg/packet/bgp/bgp.go:9773 +0x22
-    main.makeShowRouteArgs(0xc0001a5e00, 0x0?, {0xc000225910?, 0x8b93d5?, 0xc0003160d0?}, 0x1, 0x1, 0x0, 0x0, 0x0, ...)
-        /home/nakata/dev/pola-verification/gobgp/cmd/gobgp/neighbor.go:663 +0xcc2
-    main.showRoute({0xc0002f90e0, 0x12, 0x14af860?}, 0x1, 0x1, 0x0, 0x0, 0x0, 0x0)
-        /home/nakata/dev/pola-verification/gobgp/cmd/gobgp/neighbor.go:673 +0xc16
-    main.showNeighborRib({0xd593f0, 0x6}, {0x0, 0x0}, {0xc0002d0260, 0x0, 0x2})
-        /home/nakata/dev/pola-verification/gobgp/cmd/gobgp/neighbor.go:1083 +0xc8b
-    main.showGlobalRib(...)
-        /home/nakata/dev/pola-verification/gobgp/cmd/gobgp/global.go:2167
-    main.newGlobalCmd.func2(0xc0001a5b00?, {0xc0002d0260?, 0x4?, 0xd57d3e?})
-        /home/nakata/dev/pola-verification/gobgp/cmd/gobgp/global.go:2469 +0x31
-    github.com/spf13/cobra.(*Command).execute(0xc00018f808, {0xc0002d0240, 0x2, 0x2})
-        /home/nakata/go/pkg/mod/github.com/spf13/cobra@v1.7.0/command.go:944 +0x843
-    github.com/spf13/cobra.(*Command).ExecuteC(0xc00018f208)
-        /home/nakata/go/pkg/mod/github.com/spf13/cobra@v1.7.0/command.go:1068 +0x3a5
-    github.com/spf13/cobra.(*Command).Execute(...)
-        /home/nakata/go/pkg/mod/github.com/spf13/cobra@v1.7.0/command.go:992
-    main.main()
-        /home/nakata/dev/pola-verification/gobgp/cmd/gobgp/main.go:32 +0xca
+    ```gobgp global rib -a ls
+    root@gobgp2:/# gobgp global rib -a ls
+    Invalid IPv6 prefix length: 2
+    Invalid IPv6 prefix length: 2
+    Invalid IPv6 prefix length: 2
+    Network                                                                                                                                                                                                                                                    Next Hop             AS_PATH              Age        Attrs
+    *> NLRI { PREFIXv6 { LOCAL_NODE: [48 48 48 48 46 48 48 48 48 46 48 48 48 51] PREFIX: [] } }                                                                                                                                                                   172.100.200.101                           00:00:39   [{Origin: i} {LocalPref: 100} ]
+    *> NLRI { NODE { AS:65000 BGP-LS ID:0 [48 48 48 48 46 48 48 48 48 46 48 48 48 49] ISIS-L2:32 } }                                                                                                                                                              172.100.200.101                           00:00:39   [{Origin: i} {LocalPref: 100} ]
+    *> NLRI { LINK { LOCAL_NODE: [48 48 48 48 46 48 48 48 48 46 48 48 48 51] REMOTE_NODE: [48 48 48 48 46 48 48 48 48 46 48 48 48 50] LINK: <nil>-><nil>} }                                                                                                       172.100.200.101                           00:00:39   [{Origin: i} {LocalPref: 100} {LsAttributes: {IGP metric: 10} {Max Link BW: 1.25e+08} }]
+    *> NLRI { SRv6SID { LOCAL_NODE: {ASN: 65000, BGP LS ID: 0, OSPF AREA: 0, IGP ROUTER ID: [48 48 48 48 46 48 48 48 48 46 48 48 48 49]} SRv6_SID: {SIDs: fc00:b100:1:0:1::} MULTI_TOPO_IDs: {MultiTopoIDs: 2} SERVICE_CHAINING: <nil> OPAQUE_METADATA: <nil> } } 172.100.200.101                           00:00:39   [{Origin: i} {LocalPref: 100} ]
+    Invalid IPv6 prefix length: 2
+    *> NLRI { PREFIXv6 { LOCAL_NODE: [48 48 48 48 46 48 48 48 48 46 48 48 48 50] PREFIX: [] } }                                                                                                                                                                   172.100.200.101                           00:00:39   [{Origin: i} {LocalPref: 100} ]
+    *> NLRI { LINK { LOCAL_NODE: [48 48 48 48 46 48 48 48 48 46 48 48 48 50] REMOTE_NODE: [48 48 48 48 46 48 48 48 48 46 48 48 48 51] LINK: <nil>-><nil>} }                                                                                                       172.100.200.101                           00:00:39   [{Origin: i} {LocalPref: 100} {LsAttributes: {IGP metric: 10} {Max Link BW: 1.25e+08} }]
+    *> NLRI { LINK { LOCAL_NODE: [48 48 48 48 46 48 48 48 48 46 48 48 48 51] REMOTE_NODE: [48 48 48 48 46 48 48 48 48 46 48 48 48 49] LINK: <nil>-><nil>} }                                                                                                       172.100.200.101                           00:00:39   [{Origin: i} {LocalPref: 100} {LsAttributes: {IGP metric: 10} {Max Link BW: 1.25e+08} }]
+    *> NLRI { LINK { LOCAL_NODE: [48 48 48 48 46 48 48 48 48 46 48 48 48 49] REMOTE_NODE: [48 48 48 48 46 48 48 48 48 46 48 48 48 51] LINK: <nil>-><nil>} }                                                                                                       172.100.200.101                           00:00:39   [{Origin: i} {LocalPref: 100} {LsAttributes: {IGP metric: 10} {Max Link BW: 1.25e+08} }]
+    *> NLRI { LINK { LOCAL_NODE: [48 48 48 48 46 48 48 48 48 46 48 48 48 50] REMOTE_NODE: [48 48 48 48 46 48 48 48 48 46 48 48 48 49] LINK: <nil>-><nil>} }                                                                                                       172.100.200.101                           00:00:39   [{Origin: i} {LocalPref: 100} {LsAttributes: {IGP metric: 10} {Max Link BW: 1.25e+08} }]
+    Invalid IPv6 prefix length: 2
+    *> NLRI { PREFIXv6 { LOCAL_NODE: [48 48 48 48 46 48 48 48 48 46 48 48 48 49] PREFIX: [] } }                                                                                                                                                                   172.100.200.101                           00:00:39   [{Origin: i} {LocalPref: 100} ]
+    *> NLRI { PREFIXv6 { LOCAL_NODE: [48 48 48 48 46 48 48 48 48 46 48 48 48 50] PREFIX: [] } }                                                                                                                                                                   172.100.200.101                           00:00:39   [{Origin: i} {LocalPref: 100} ]
+    Invalid IPv6 prefix length: 2
+    *> NLRI { PREFIXv6 { LOCAL_NODE: [48 48 48 48 46 48 48 48 48 46 48 48 48 51] PREFIX: [] } }                                                                                                                                                                   172.100.200.101                           00:00:39   [{Origin: i} {LocalPref: 100} ]
+    *> NLRI { SRv6SID { LOCAL_NODE: {ASN: 65000, BGP LS ID: 0, OSPF AREA: 0, IGP ROUTER ID: [48 48 48 48 46 48 48 48 48 46 48 48 48 51]} SRv6_SID: {SIDs: fc00:b100:3:0:1::} MULTI_TOPO_IDs: {MultiTopoIDs: 2} SERVICE_CHAINING: <nil> OPAQUE_METADATA: <nil> } } 172.100.200.101                           00:00:39   [{Origin: i} {LocalPref: 100} ]
+    *> NLRI { NODE { AS:65000 BGP-LS ID:0 [48 48 48 48 46 48 48 48 48 46 48 48 48 51] ISIS-L2:32 } }                                                                                                                                                              172.100.200.101                           00:00:39   [{Origin: i} {LocalPref: 100} ]
+    *> NLRI { LINK { LOCAL_NODE: [48 48 48 48 46 48 48 48 48 46 48 48 48 49] REMOTE_NODE: [48 48 48 48 46 48 48 48 48 46 48 48 48 50] LINK: <nil>-><nil>} }                                                                                                       172.100.200.101                           00:00:39   [{Origin: i} {LocalPref: 100} {LsAttributes: {IGP metric: 10} {Max Link BW: 1.25e+08} }]
+    *> NLRI { PREFIXv6 { LOCAL_NODE: [48 48 48 48 46 48 48 48 48 46 48 48 48 49] PREFIX: [] } }                                                                                                                                                                   172.100.200.101                           00:00:39   [{Origin: i} {LocalPref: 100} ]
+    *> NLRI { NODE { AS:65000 BGP-LS ID:0 [48 48 48 48 46 48 48 48 48 46 48 48 48 50] ISIS-L2:32 } }                                                                                                                                                              172.100.200.101                           00:00:39   [{Origin: i} {LocalPref: 100} ]
+    *> NLRI { SRv6SID { LOCAL_NODE: {ASN: 65000, BGP LS ID: 0, OSPF AREA: 0, IGP ROUTER ID: [48 48 48 48 46 48 48 48 48 46 48 48 48 50]} SRv6_SID: {SIDs: fc00:b100:2:0:1::} MULTI_TOPO_IDs: {MultiTopoIDs: 2} SERVICE_CHAINING: <nil> OPAQUE_METADATA: <nil> } } 172.100.200.101                           00:00:39   [{Origin: i} {LocalPref: 100} ]
     ```
 
 ### Show Pola Information
 
-    ```
+    ```polad
     root@gobgp2:/# polad -f config/polad.yaml
-    2025-03-29T10:12:43.818Z	info	Start listening on gRPC port	{"server": "grpc", "listenInfo": "127.0.0.1:50052"}
-    2025-03-29T10:12:43.818Z	info	Start listening on PCEP port	{"address": "172.100.200.102:4189"}
-    2025-03-29T10:12:43.822Z	info	Request TED update	{"source": "GoBGP", "session": "127.0.0.1:50051"}
-    2025-03-29T10:12:43.822Z	error	Failed session with GoBGP	{"error": "proto: invalid empty type URL"}
-    2025-03-29T10:13:15.636Z	info	Start PCEP session	{"server": "pcep", "session": "172.100.200.101"}
+    2025-04-10T06:01:32.558Z	info	Start listening on gRPC port	{"server": "grpc", "listenInfo": "127.0.0.1:50052"}
+    2025-04-10T06:01:32.558Z	info	start listening on PCEP port	{"address": "172.100.200.102:4189"}
+    2025-04-10T06:01:34.881Z	info	start PCEP session	{"server": "pcep", "session": "172.100.200.101"}
+    2025-04-10T06:06:23.240Z	info	Received GetTed API request	{"server": "grpc"}
+    2025-04-10T06:11:32.589Z	error	Failed session with GoBGP	{"error": "failed to convert path to TED element: failed to process LS Link NLRI: failed to parse local IP address: ParseAddr(\"\"): unable to parse IP"}
+    2025-04-10T06:21:32.619Z	error	Failed session with GoBGP	{"error": "failed to convert path to TED element: failed to process LS Link NLRI: failed to parse local IP address: ParseAddr(\"\"): unable to parse IP"}
+    2025-04-10T06:31:32.649Z	error	Failed session with GoBGP	{"error": "failed to convert path to TED element: failed to process LS Node NLRI: expected 1 SR Capability TLV, got: 0"}
     ```
