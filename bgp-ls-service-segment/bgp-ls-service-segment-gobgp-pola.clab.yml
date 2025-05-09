@@ -9,18 +9,15 @@ topology:
       kind: linux
       image: ubuntu:k1yoto
       binds:
-        - ../gobgp/cmd/gobgpd/gobgpd:/bin/gobgpd
-        - ../gobgp/cmd/gobgp/gobgp:/bin/gobgp
+        - ../gobgp/cmd/build/:/bin/gobgp/
         - startup/gobgp1/gobgpd.yml:/config/gobgpd.yml
       mgmt-ipv4: 172.100.100.101
     gobgp2:
       kind: linux
       image: ubuntu:k1yoto
       binds:
-        - ../gobgp/cmd/gobgpd/gobgpd:/bin/gobgpd
-        - ../gobgp/cmd/gobgp/gobgp:/bin/gobgp
-        - ../pola/cmd/pola/pola:/bin/pola
-        - ../pola/cmd/polad/polad:/bin/polad
+        - ../gobgp/cmd/build/:/bin/gobgp/
+        - ../pola/cmd/build/:/bin/pola/
         - startup/gobgp2/gobgpd.yml:/config/gobgpd.yml
         - startup/gobgp2/polad.yaml:/config/polad.yaml
       mgmt-ipv4: 172.100.100.102

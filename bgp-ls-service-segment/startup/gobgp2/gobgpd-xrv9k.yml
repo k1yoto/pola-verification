@@ -5,14 +5,6 @@ global:
 neighbors:
   - config:
       peer-as: 65000
-      neighbor-address: "172.100.100.101"
-    afi-safis:
-      - config:
-          afi-safi-name: ipv4-unicast
-      - config:
-          afi-safi-name: ls
-  - config:
-      peer-as: 65000
       neighbor-address: "172.100.200.101"
     afi-safis:
       - config:

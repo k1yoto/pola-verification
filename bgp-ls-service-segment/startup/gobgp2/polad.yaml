@@ -7,7 +7,7 @@ global:
     address: "127.0.0.1"
     port: 50052
   log:
-    path: "/var/log/polad"
+    path: "/var/log"
     name: "polad.log"
   ted:
     enable: true
