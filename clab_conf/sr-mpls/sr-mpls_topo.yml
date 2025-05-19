@@ -1,0 +1,38 @@
+name: sr-mpls_topo
+mgmt:
+  network: custom_mgmt
+  ipv4-subnet: 172.100.100.0/24
+topology:
+  nodes:
+    pola:
+      kind: linux
+      image: ubuntu:k1yoto
+      binds:
+        - ../../gobgp/cmd/build/:/bin/gobgp/
+        - ../../pola/cmd/build/:/bin/pola/
+        - startup/pola/gobgpd-xrv9k.yml:/config/gobgpd-xrv9k.yml
+        - startup/pola/polad.yaml:/config/polad.yaml
+      mgmt-ipv4: 172.100.100.101
+      exec:
+        - ip -4 addr add 172.100.255.101/24 dev eth1
+    r1:
+      kind: cisco_xrv9k
+      image: vrnetlab/cisco_xrv9k:7.11.1
+      mgmt-ipv4: 172.100.100.201
+      startup-config: startup/xrv9k/r1.txt
+    r2:
+      kind: cisco_xrv9k
+      image: vrnetlab/cisco_xrv9k:7.11.1
+      mgmt-ipv4: 172.100.100.202
+      startup-config: startup/xrv9k/r2.txt
+    r3:
+      kind: cisco_xrv9k
+      image: vrnetlab/cisco_xrv9k:7.11.1
+      mgmt-ipv4: 172.100.100.203
+      startup-config: startup/xrv9k/r3.txt
+
+  links:
+    - endpoints: ["pola:eth1", "r1:Gi0/0/0/0"]
+    - endpoints: ["r1:Gi0/0/0/1", "r2:Gi0/0/0/0"]
+    - endpoints: ["r1:Gi0/0/0/2", "r3:Gi0/0/0/0"]
+    - endpoints: ["r2:Gi0/0/0/1", "r3:Gi0/0/0/1"]

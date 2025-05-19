@@ -1,0 +1,65 @@
+int lo0
+ ipv4 address 1.1.1.1/32
+ ipv6 address fc00:b100:1::1/128
+!
+int g0/0/0/0
+ ipv4 address 172.100.255.102/24
+ ipv6 enable
+ ipv6 address fd00:255::102/64
+ no shut
+!
+int g0/0/0/1
+ ipv6 enable
+ ipv6 address fd00:a1::1/64
+ no shut
+!
+int g0/0/0/2
+ ipv6 enable
+ ipv6 address fd00:a2::1/64
+ no shut
+!
+segment-routing traffic-eng
+ pcc
+  source-address ipv4 172.100.255.102
+  pce address ipv4 172.100.255.101
+!
+segment-routing srv6
+ locators
+  locator MY_LOCATOR
+   micro-segment behavior unode psp-usd
+   prefix fc00:b100:1::/48
+!
+router isis 1
+ distribute link-state instance-id 32
+ is-type level-2-only
+ net 49.1.0.0.1.00
+ address-family ipv6 unicast
+  segment-routing srv6
+   locator MY_LOCATOR level 2
+  metric-style wide
+  !
+  int Loopback0
+   address-family ipv6 unicast
+  !
+  int g0/0/0/1
+   point-to-point
+   address-family ipv6 unicast
+  !
+  int g0/0/0/2
+   point-to-point
+   address-family ipv6 unicast
+ !
+!
+router bgp 65000
+ bgp router-id 1.1.1.1
+ address-family link-state link-state
+ !
+ neighbor-group pola
+  remote-as 65000
+  timers 10 30
+  address-family link-state link-state
+  !
+ !
+ neighbor 172.100.255.101
+  use neighbor-group pola
+  

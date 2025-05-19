@@ -1,0 +1,14 @@
+# polad_cfg.yaml
+global:
+  pcep:
+    address: "172.100.255.101"
+    port: 4189
+  grpc-server:
+    address: "127.0.0.1"
+    port: 50051
+  log:
+    path: "/var/log/polad"
+    name: "polad.log"
+  ted:
+    enable: false
+  usid-mode: true

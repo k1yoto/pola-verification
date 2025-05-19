@@ -1,0 +1,32 @@
+int lo0
+ ipv4 address 3.3.3.3/32
+!
+int g0/0/0/0
+ ipv4 address 172.100.2.3/24
+ no shut
+!
+int g0/0/0/1
+ ipv4 address 172.100.3.3/24
+ no shut
+!
+segment-routing
+!
+router isis 1
+ is-type level-2-only
+ net 49.1.0.0.3.00
+ segment-routing global-block 16000 23999
+ address-family ipv4 unicast
+  segment-routing mpls
+  metric-style wide
+  !
+  int Loopback0
+   address-family ipv4 unicast
+   prefix-sid index 3
+  !
+  int g0/0/0/0
+   point-to-point
+   address-family ipv4 unicast
+  !
+  int g0/0/0/1
+   point-to-point
+   address-family ipv4 unicast
