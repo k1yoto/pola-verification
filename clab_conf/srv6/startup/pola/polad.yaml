@@ -1,7 +1,7 @@
 # polad_cfg.yaml
 global:
   pcep:
-    address: "172.100.255.101"
+    address: "fd00:abcd::255"
     port: 4189
   grpc_server:
     address: "127.0.0.1"

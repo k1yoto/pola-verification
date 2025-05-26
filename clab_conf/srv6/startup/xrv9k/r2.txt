@@ -1,17 +1,30 @@
 int lo0
+ ipv4 address 2.2.2.2/32
  ipv6 address fc00:b100:2::1/128
 !
 int g0/0/0/0
+ description to:r1
  ipv6 enable
  ipv6 address fd00:a1::2/64
  no shut
 !
 int g0/0/0/1
+ description to:r4
  ipv6 enable
  ipv6 address fd00:a3::2/64
  no shut
 !
+int g0/0/0/2
+ description to:r3
+ ipv6 enable
+ ipv6 address fd00:a5::2/64
+ no shut
+!
 segment-routing traffic-eng
+ segment-lists
+  srv6
+   sid-format usid-f3216
+  !
 !
 segment-routing srv6
  locators
@@ -20,6 +33,7 @@ segment-routing srv6
    prefix fc00:b100:2::/48
 !
 router isis 1
+ distribute link-state instance-id 32
  is-type level-2-only
  net 49.1.0.0.2.00
  address-family ipv6 unicast
@@ -37,3 +51,8 @@ router isis 1
   int g0/0/0/1
    point-to-point
    address-family ipv6 unicast
+  !
+  int g0/0/0/2
+   point-to-point
+   address-family ipv6 unicast
+   
