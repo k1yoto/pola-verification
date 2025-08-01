@@ -1,0 +1,71 @@
+name: srv6-frr
+mgmt:
+  network: custom_mgmt
+  ipv6-subnet: 2001:ffff::/64
+topology:
+  nodes:
+    pola:
+      kind: linux
+      image: ubuntu:k1yoto
+      mgmt-ipv6: 2001:ffff::254
+      binds:
+        - ../../gobgp/cmd/build/:/bin/gobgp/
+        - ../../pola/cmd/build/:/bin/pola/
+        - startup/pola/:/config/
+      exec:
+        - ip -6 addr add fd00:abcd::254/64 dev eth1
+    r01:
+      kind: linux
+      image: frr:k1yoto
+      mgmt-ipv6: 2001:ffff::10
+      binds:
+        - startup/r01/daemons:/etc/frr/daemons
+        - startup/r01/frr.conf:/etc/frr/frr.conf
+    r02:
+      kind: linux
+      image: frr:k1yoto
+      mgmt-ipv6: 2001:ffff::20
+      binds:
+        - startup/r02/daemons:/etc/frr/daemons
+        - startup/r02/frr.conf:/etc/frr/frr.conf
+    r03:
+      kind: linux
+      image: frr:k1yoto
+      mgmt-ipv6: 2001:ffff::30
+      binds:
+        - startup/r03/daemons:/etc/frr/daemons
+        - startup/r03/frr.conf:/etc/frr/frr.conf
+    r04:
+      kind: linux
+      image: frr:k1yoto
+      mgmt-ipv6: 2001:ffff::40
+      binds:
+        - startup/r04/daemons:/etc/frr/daemons
+        - startup/r04/frr.conf:/etc/frr/frr.conf
+    rr01:
+      kind: cisco_xrv9k
+      image: vrnetlab/cisco_xrv9k:7.11.1
+      mgmt-ipv6: 2001:ffff::99
+      startup-config: startup/rr01/rr01.txt
+
+    switch:
+      kind: bridge
+
+  links:
+    - endpoints: ["pola:eth1", "switch:eth1"]
+    - endpoints: ["r01:eth3", "switch:eth2"]
+    - endpoints: ["r04:eth3", "switch:eth3"]
+    - endpoints: ["rr01:Gi0/0/0/1", "switch:eth4"]
+
+    - endpoints: ["rr01:Gi0/0/0/0", "r02:eth4"]
+      mtu: 1500
+    - endpoints: ["r01:eth1", "r02:eth1"]
+      mtu: 1500
+    - endpoints: ["r01:eth2", "r03:eth1"]
+      mtu: 1500
+    - endpoints: ["r02:eth2", "r03:eth2"]
+      mtu: 1500
+    - endpoints: ["r02:eth3", "r04:eth1"]
+      mtu: 1500
+    - endpoints: ["r03:eth3", "r04:eth2"]
+      mtu: 1500

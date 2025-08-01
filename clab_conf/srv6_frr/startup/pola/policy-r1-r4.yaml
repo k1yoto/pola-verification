@@ -1,0 +1,11 @@
+srPolicy:
+  pcep_session_addr: "fd00:abcd::1"
+  src_addr: "fc00:b100:1::1"
+  dst_addr: "fc00:b100:4::1"
+  name: pola_r1_r4
+  color: 100
+  segment_list:
+    - sid: "fc00:b100:3::"
+    - sid: "fc00:b100:2::"
+    - sid: "fc00:b100:1::"
+asn: 65001

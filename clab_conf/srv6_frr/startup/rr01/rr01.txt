@@ -1,0 +1,46 @@
+int lo0
+ ipv4 address 9.9.9.9/32
+ ipv6 address fc00:b100:0:9::1/128
+!
+int g0/0/0/0
+ ipv6 enable
+ no shut
+!
+int g0/0/0/1
+ description to:pola
+ ipv6 enable
+ ipv6 address fd00:abcd::9/64
+ no shut
+!
+router isis 1
+ distribute link-state instance-id 32
+ is-type level-2-only
+ net 49.0001.0000.0000.0009.00
+ address-family ipv6 unicast
+  segment-routing srv6
+   locator MAIN level 2
+  metric-style wide
+  !
+ !
+ int g0/0/0/0
+  point-to-point
+  circuit-type level-2-only
+  address-family ipv6 unicast
+  !
+ !
+!
+router bgp 65001
+ bgp router-id 9.9.9.9
+ address-family link-state link-state
+ !
+ neighbor-group pola
+  remote-as 65001
+  timers 10 30
+  address-family link-state link-state
+  !
+ !
+ neighbor fd00:abcd::254
+  use neighbor-group pola
+  !
+ !
+!
