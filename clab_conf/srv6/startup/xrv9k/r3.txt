@@ -21,6 +21,15 @@ int g0/0/0/2
  no shut
 !
 segment-routing traffic-eng
+ interface GigabitEthernet 0/0/0/0
+  metric 50
+ !
+ interface GigabitEthernet 0/0/0/1
+  metric 10
+ !
+ interface GigabitEthernet 0/0/0/2
+  metric 10
+ !
  segment-lists
   srv6
    sid-format usid-f3216

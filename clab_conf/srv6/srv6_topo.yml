@@ -15,25 +15,32 @@ topology:
       exec:
         - ip -6 addr add fd00:abcd::255/64 dev eth1
 
-    host1:
-      kind: linux
-      image: ubuntu:k1yoto
-      mgmt-ipv6: 2001:ffff::10
-      exec:
-        - ip -6 addr add 2001:1111::10/64 dev eth1
-        - ip -6 route add 2001:2222::/64 via 2001:1111::1 dev eth1
-    host2:
-      kind: linux
-      image: ubuntu:k1yoto
-      mgmt-ipv6: 2001:ffff::20
-      exec:
-        - ip -6 addr add 2001:2222::20/64 dev eth1
-        - ip -6 route add 2001:1111::/64 via 2001:2222::1 dev eth1
+    # host1:
+    #   kind: linux
+    #   image: ubuntu:k1yoto
+    #   mgmt-ipv6: 2001:ffff::10
+    #   exec:
+    #     - ip -6 addr add 2001:1111::10/64 dev eth1
+    #     - ip -6 route add 2001:2222::/64 via 2001:1111::1 dev eth1
+    # host2:
+    #   kind: linux
+    #   image: ubuntu:k1yoto
+    #   mgmt-ipv6: 2001:ffff::20
+    #   exec:
+    #     - ip -6 addr add 2001:2222::20/64 dev eth1
+    #     - ip -6 route add 2001:1111::/64 via 2001:2222::1 dev eth1
+
+    # xr-pce:
+    #   kind: cisco_xrv9k
+    #   image: vrnetlab/cisco_xrv9k:7.11.1
+    #   mgmt-ipv6: 2001:ffff::254
+    #   startup-config: startup/xrv9k/xr-pce.txt
 
     r1:
       kind: cisco_xrv9k
       image: vrnetlab/cisco_xrv9k:7.11.1
       mgmt-ipv6: 2001:ffff::100
+      # startup-config: startup/xrv9k/r1_to_xr-pce.txt
       startup-config: startup/xrv9k/r1.txt
     r2:
       kind: cisco_xrv9k
@@ -49,7 +56,7 @@ topology:
       kind: cisco_xrv9k
       image: vrnetlab/cisco_xrv9k:7.11.1
       mgmt-ipv6: 2001:ffff::400
-      startup-config: startup/xrv9k/r4.txt
+      startup-config: startup/xrv9k/r4_to_pola.txt
 
     switch:
       kind: bridge
@@ -58,6 +65,10 @@ topology:
     - endpoints: ["pola:eth1", "switch:eth1"]
     - endpoints: ["r1:Gi0/0/0/0", "switch:eth2"]
     - endpoints: ["r4:Gi0/0/0/0", "switch:eth3"]
+    # - endpoints: ["xr-pce:Gi0/0/0/0", "switch:eth4"]
+
+    # - endpoints: ["pola:eth1", "r4:Gi0/0/0/0"]
+    # - endpoints: ["xr-pce:Gi0/0/0/0", "r1:Gi0/0/0/0"]
 
     - endpoints: ["r1:Gi0/0/0/1", "r2:Gi0/0/0/0"]
     - endpoints: ["r1:Gi0/0/0/2", "r3:Gi0/0/0/0"]
@@ -65,5 +76,5 @@ topology:
     - endpoints: ["r4:Gi0/0/0/2", "r3:Gi0/0/0/1"]
     - endpoints: ["r2:Gi0/0/0/2", "r3:Gi0/0/0/2"]
 
-    - endpoints: ["host1:eth1", "r1:Gi0/0/0/3"]
-    - endpoints: ["host2:eth1", "r4:Gi0/0/0/3"]
+    # - endpoints: ["host1:eth1", "r1:Gi0/0/0/3"]
+    # - endpoints: ["host2:eth1", "r4:Gi0/0/0/3"]

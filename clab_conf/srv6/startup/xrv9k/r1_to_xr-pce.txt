@@ -13,9 +13,9 @@ int lo0
  ipv6 address fc00:b100:1::1/128
 !
 int g0/0/0/0
- description to:pola
+ description to:xr-pce
  ipv6 enable
- ipv6 address fd00:abcd::1/64
+ ipv6 address fd00:beef::1/64
  no shut
 !
 int g0/0/0/1
@@ -47,13 +47,19 @@ route-policy add-color-100
 end-policy
 !
 segment-routing traffic-eng
+ interface GigabitEthernet 0/0/0/1
+  metric 10
+ !
+ interface GigabitEthernet 0/0/0/2
+  metric 50
+ !
  segment-lists
   srv6
    sid-format usid-f3216
   !
  pcc
-  source-address ipv6 fd00:abcd::1
-  pce address ipv6 fd00:abcd::255
+  source-address ipv6 fd00:beef::1
+  pce address ipv6 fd00:beef::255
   report-all
 !
 segment-routing srv6
@@ -72,6 +78,10 @@ router isis 1
   metric-style wide
   !
   int Loopback0
+   address-family ipv6 unicast
+  !
+  int g0/0/0/0
+   point-to-point
    address-family ipv6 unicast
   !
   int g0/0/0/1
@@ -101,12 +111,10 @@ router bgp 65000
   update-source Loopback0
   address-family vpnv6 unicast
    route-policy add-color-100 out
-  !
  !
  neighbor fc00:b100:4::1
   use neighbor-group ibgp
-  !
- ! 
+ !
  vrf 100
   rd 65000:100
   address-family ipv6 unicast

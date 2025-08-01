@@ -5,7 +5,7 @@ global:
 neighbors:
   - config:
       peer-as: 65000
-      neighbor-address: "fd00:abcd::1"
+      neighbor-address: "fd00:abcd::4"
     afi-safis:
       - config:
           afi-safi-name: ls
