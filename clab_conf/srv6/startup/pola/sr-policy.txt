@@ -1,0 +1,15 @@
+segment-routing traffic-eng
+ policy policy_r4_to_r1
+  srv6 locator MY_LOCATOR binding-sid dynamic behavior ub6-insert-reduced
+  color 100 end-point ipv6 fc00:b100:1::1
+  candidate-paths
+   preference 10
+    dynamic pcep
+
+segment-routing traffic-eng
+ policy policy_r1_to_r4
+  srv6 locator MY_LOCATOR binding-sid dynamic behavior ub6-insert-reduced
+  color 100 end-point ipv6 fc00:b100:4::1
+  candidate-paths
+   preference 10
+    dynamic pcep

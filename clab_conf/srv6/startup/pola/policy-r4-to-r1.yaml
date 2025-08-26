@@ -1,0 +1,9 @@
+asn: 65000
+srPolicy:
+  pcep_session_addr: "fd00:abcd::4"
+  src_router_id: "0000.0000.0004"
+  dst_router_id: "0000.0000.0001"
+  name: policy_dynamic_r4_to_r1
+  color: 100
+  type: dynamic
+  metric: te

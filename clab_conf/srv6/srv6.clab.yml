@@ -1,0 +1,51 @@
+name: srv6_topo
+mgmt:
+  network: custom_mgmt
+  ipv6-subnet: 2001:ffff::/64
+topology:
+  nodes:
+    pola:
+      kind: linux
+      image: ubuntu:k1yoto
+      binds:
+        - ../../gobgp/cmd/build/:/bin/gobgp/
+        - ../../pola/cmd/build/:/bin/pola/
+        - startup/pola/:/config/
+      mgmt-ipv6: 2001:ffff::ffff
+      exec:
+        - ip -6 addr add fd00:abcd::ffff/64 dev eth1
+
+    r1:
+      kind: cisco_xrv9k
+      image: vrnetlab/cisco_xrv9k:7.11.1
+      mgmt-ipv6: 2001:ffff::10
+      startup-config: startup/xrv9k/r1.txt
+    r2:
+      kind: cisco_xrv9k
+      image: vrnetlab/cisco_xrv9k:7.11.1
+      mgmt-ipv6: 2001:ffff::20
+      startup-config: startup/xrv9k/r2.txt
+    r3:
+      kind: cisco_xrv9k
+      image: vrnetlab/cisco_xrv9k:7.11.1
+      mgmt-ipv6: 2001:ffff::30
+      startup-config: startup/xrv9k/r3.txt
+    r4:
+      kind: cisco_xrv9k
+      image: vrnetlab/cisco_xrv9k:7.11.1
+      mgmt-ipv6: 2001:ffff::40
+      startup-config: startup/xrv9k/r4.txt
+
+    switch:
+      kind: bridge
+
+  links:
+    - endpoints: ["pola:eth1", "switch:eth1"]
+    - endpoints: ["r1:Gi0/0/0/0", "switch:eth2"]
+    - endpoints: ["r4:Gi0/0/0/0", "switch:eth3"]
+
+    - endpoints: ["r1:Gi0/0/0/1", "r2:Gi0/0/0/0"]
+    - endpoints: ["r1:Gi0/0/0/2", "r3:Gi0/0/0/0"]
+    - endpoints: ["r4:Gi0/0/0/1", "r2:Gi0/0/0/1"]
+    - endpoints: ["r4:Gi0/0/0/2", "r3:Gi0/0/0/1"]
+    - endpoints: ["r2:Gi0/0/0/2", "r3:Gi0/0/0/2"]

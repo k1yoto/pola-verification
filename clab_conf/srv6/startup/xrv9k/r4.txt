@@ -48,13 +48,19 @@ end-policy
 !
 !
 segment-routing traffic-eng
+ interface GigabitEthernet 0/0/0/1
+  metric 50
+ !
+ interface GigabitEthernet 0/0/0/2
+  metric 10
+ !
  segment-lists
   srv6
    sid-format usid-f3216
   !
  pcc
   source-address ipv6 fd00:abcd::4
-  pce address ipv6 fd00:abcd::255
+  pce address ipv6 fd00:abcd::ffff
   report-all
 !
 segment-routing srv6
@@ -97,14 +103,26 @@ router bgp 65000
    !
   !
  !
+ address-family link-state link-state
+ !
  neighbor-group ibgp
   remote-as 65000
   update-source Loopback0
   address-family vpnv6 unicast
    route-policy add-color-100 out
  !
+ neighbor-group pola
+  remote-as 65000
+  timers 10 30
+  address-family link-state link-state
+  !
+ !
  neighbor fc00:b100:1::1
   use neighbor-group ibgp
+ !
+ neighbor fd00:abcd::ffff
+  use neighbor-group pola
+  !
  !
  vrf 100
   rd 65000:100
